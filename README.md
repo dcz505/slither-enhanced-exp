@@ -10,15 +10,6 @@ Slither Enhanced 是针对 [Slither 安全分析工具](https://github.com/cryti
 - **暂不接受外部贡献或协作请求**
 - 仅作为个人学习和研究的记录
 
-## 主要特点
-
-- **区间分析引擎**: 先进的数值边界分析，提高整数溢出和下溢检测准确性
-- **DeFi特定检测器**: 专为DeFi协议设计的漏洞检测器
-  - **闪电贷回调风险检测器**: 识别闪电贷回调函数中的风险模式
-  - **无界闪电贷风险检测器**: 发现可能导致无界闪电贷风险的设计缺陷
-  - **未检查余额变更检测器**: 检测代币转移后未验证余额变更的情况
-- **改进的报告输出**: 增强可读性的终端输出和交互式HTML报告
-
 ## 安装
 
 ### 从源码安装
@@ -51,10 +42,11 @@ slither_enhanced/
 │   │   │   |── numerical_anomalies.py       # 数值异常检测器
 |   |   |   └── ...                          # 正在修改调整中
 │   │   └── interval_analysis/  # 区间分析模块
-│   ├── frontend/             # 前端界面
+│   ├── frontend/             # 前端界面（修改调整中）
 │   │   ├── terminal/         # 终端报告可视化
-│   │   ├── staticWeb/        # 静态HTML报告页面
-│   │   └── web/              # Web UI
+│   │   └── staticWeb/        # 静态HTML报告页面 
+|   |—— golang/py_module/
+|   |   |—— multipleConcurrency # 并发处理模块
 ├── test/                     # 测试用例
 │   ├── TestContracts/        # 测试合约
 │   ├── scripts/              # 测试脚本
@@ -74,7 +66,7 @@ Slither Enhanced 可以像标准 Slither 一样使用，但提供了额外的检
 slither contract.sol
 
 # 仅使用特定的增强检测器
-slither contract.sol --detect flashloan-callback-risks
+slither contract.sol --detect flashloan-callback-risks...
 
 interval-analyze contract.sol
 ```

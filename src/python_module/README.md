@@ -41,11 +41,9 @@
 
 使用方法：
 ```python
-from slither_enhanced.src.python_module.interval_analysis import analyze_file
-
 # --detect interval-numerical-anomalies,flashloan-callback-risks,interval-violation,defi-range-violation,unbounded-flashloan-risk,unchecked-balance-change
-```
 
+from slither_enhanced.src.python_module.interval_analysis import analyze_file
 
 # 分析合约文件
 results = analyze_file("path/to/contract.sol")
