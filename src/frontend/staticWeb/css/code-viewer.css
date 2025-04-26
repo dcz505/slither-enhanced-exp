@@ -1,0 +1,230 @@
+/**
+ * 代码查看模块的专用样式
+ * 这些样式与主应用样式分离，便于调整和删除
+ */
+
+/* 代码块容器 */
+.code-block {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+}
+
+/* 代码片段头部 */
+.code-header {
+  background-color: #2c3e50;
+  color: #e2e8f0;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #4b5563;
+  font-weight: 500;
+}
+
+/* 代码片段尾部 */
+.code-footer {
+  background-color: #2c3e50;
+  color: #cbd5e1;
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  border-top: 1px solid #4b5563;
+  text-align: center;
+  font-style: italic;
+}
+
+/* 省略的代码部分 */
+.code-omitted {
+  color: #94a3b8;
+  padding: 0.3rem 1rem;
+  font-size: 0.75rem;
+  background-color: rgba(44, 62, 80, 0.6);
+  text-align: center;
+  font-style: italic;
+  border-bottom: 1px dashed #4b5563;
+}
+
+.code-omitted:last-child {
+  border-top: 1px dashed #4b5563;
+  border-bottom: none;
+}
+
+/* 代码行 */
+.code-line {
+  white-space: pre;
+  padding: 0.125rem 0;
+}
+
+/* 代码行悬停效果 */
+.code-line:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 高亮行 */
+.highlighted-line {
+  background-color: rgba(234, 179, 8, 0.15) !important;
+  border-left: 3px solid #eab308;
+}
+
+/* 行号样式 */
+.line-number {
+  user-select: none;
+  color: #64748b;
+  min-width: 3rem;
+  text-align: right;
+  padding-right: 1rem;
+}
+
+/* 加载指示器 */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: #94a3b8;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  border-radius: 50%;
+  border-top-color: #94a3b8;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 错误消息 */
+.error {
+  color: #ef4444;
+  padding: 1rem;
+  border-left: 3px solid #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* 代码上下文容器 */
+.code-context {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  max-height: 20rem;
+  min-height: 100px;
+  overflow: auto;
+  border: 1px solid #334155;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+  display: block;
+  width: 100%;
+  background-color: #1e293b;
+}
+
+/* 确保代码上下文内容的可见性 */
+.code-context .code-block {
+  padding: 0.5rem 0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  background: #1e293b;
+  color: #e2e8f0;
+  overflow-x: auto;
+  display: block;
+  width: 100%;
+}
+
+/* 模态窗口样式增强 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+  backdrop-filter: blur(2px);
+  transition: all 0.3s ease;
+}
+
+.modal.modal-open {
+  display: flex;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-box {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem;
+  max-width: 90%;
+  width: 1024px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 文件信息区域 */
+.file-info {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* 按钮悬停效果 */
+.show-context-btn:hover,
+.show-file-btn:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* 适应不同屏幕尺寸 */
+@media (max-width: 640px) {
+  .code-line {
+    font-size: 0.75rem;
+  }
+
+  .line-number {
+    min-width: 2.5rem;
+  }
+
+  .code-context {
+    max-height: 16rem;
+  }
+
+  .modal-box {
+    padding: 1rem;
+    width: 95%;
+  }
+}

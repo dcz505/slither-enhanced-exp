@@ -1,0 +1,57 @@
+{
+    "os_type": "Windows",
+    "setup_time": "Sat, Apr 19, 2025  8:14:40 PM",
+    "detectors": [
+        "flashloan-callback",
+        "unbounded-flashloan",
+        "unchecked-balance"
+    ],
+    "severity_weights": {
+        "high": 5.0,
+        "medium": 2.0,
+        "low": 0.5
+    },
+    "detector_importance": {
+        "flashloan-callback": 1.2,
+        "unbounded-flashloan": 1.2,
+        "unchecked-balance": 1.2,
+        "default": 1.0
+    },
+    "smartbugs_categories": [
+        "arithmetic",
+        "reentrancy",
+        "access_control",
+        "denial_of_service"
+    ],
+    "smartbugs_max_contracts": 4,
+    "smartbugs_selected_contracts": {
+        "arithmetic": [
+            "integer_overflow_mul.sol",
+            "overflow_simple_add.sol",
+            "tokensalechallenge.sol",
+            "BECToken.sol"
+        ],
+        "reentrancy": [
+            "reentrancy_cross_function.sol",
+            "reentrancy_dao.sol",
+            "etherbank.sol",
+            "spank_chain_payment.sol"
+        ],
+        "access_control": [
+            "proxy.sol",
+            "wallet_04_confused_sign.sol",
+            "multiowned_vulnerable.sol",
+            "parity_wallet_bug_1.sol"
+        ],
+        "denial_of_service": [
+            "dos_address.sol",
+            "auction.sol",
+            "send_loop.sol",
+            "list_dos.sol"
+        ]
+    },
+    "performance_comparison": {
+        "show_improvement_percentage": true,
+        "highlight_threshold": 15
+    }
+}

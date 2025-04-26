@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能合约审计报告</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  <!-- 代码查看模块样式 -->
+  <link rel="stylesheet" href="./css/code-viewer.css">
+  <!-- 添加字体和图标 -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    .animate-pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .7;
+      }
+    }
+
+    .hover-scale {
+      transition: transform 0.2s ease;
+    }
+
+    .hover-scale:hover {
+      transform: scale(1.02);
+    }
+
+    .card-gradient {
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    }
+
+    /* 加载指示器样式 */
+    .loading-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background-color: rgba(255, 255, 255, 0.9);
+      z-index: 9999;
+      backdrop-filter: blur(3px);
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: #3b82f6;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+  <!-- 加载指示器 -->
+  <div id="loadingIndicator" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>加载报告中...</p>
+  </div>
+
+  <div class="min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-primary text-primary-content shadow-lg sticky top-0 z-10">
+      <div class="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-shield-alt text-2xl"></i>
+          <h1 class="text-xl md:text-2xl font-bold hidden md:inline">智能合约审计报告</h1>
+        </div>
+        <div class="flex space-x-2">
+          <!-- 历史记录菜单 -->
+          <div class="dropdown dropdown-end">
+            <button tabindex="0" class="btn btn-sm btn-outline btn-secondary">
+              <i class="fas fa-history mr-1"></i>
+              <span class="hidden md:inline">历史记录</span>
+              <span class="inline md:hidden">历史</span>
+            </button>
+            <ul tabindex="0" id="historyList"
+              class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64">
+              <li class="menu-title">
+                <span>最近的报告</span>
+              </li>
+              <div id="historyItems">
+                <!-- 历史记录项将通过JS动态插入 -->
+                <li class="text-gray-500 text-center py-2 text-sm">暂无历史记录</li>
+              </div>
+              <li class="divider"></li>
+              <li><a id="clearHistoryBtn" class="text-error"><i class="fas fa-trash mr-2"></i>清除历史记录</a></li>
+            </ul>
+          </div>
+
+          <!-- 上传按钮 -->
+          <button id="uploadReportBtn" class="btn btn-sm btn-outline btn-accent">
+            <i class="fas fa-upload mr-1"></i>
+            <span class="hidden md:inline">上传报告</span>
+            <span class="inline md:hidden">上传</span>
+          </button>
+
+          <!-- 导出菜单 -->
+          <div class="dropdown dropdown-end">
+            <button tabindex="0" class="btn btn-sm btn-outline">
+              <i class="fas fa-download mr-1"></i>
+              <span class="hidden md:inline">导出报告</span>
+              <span class="inline md:hidden">导出</span>
+            </button>
+            <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+              <li><a id="downloadJsonBtn"><i class="fas fa-file-code mr-2"></i>JSON格式</a></li>
+              <li><a id="downloadPdfBtn"><i class="fas fa-file-pdf mr-2"></i>PDF格式</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 拖放提示区域 -->
+    <div id="dropArea"
+      class="hidden w-full bg-blue-50 border-2 border-dashed border-blue-300 p-6 text-center mb-6 transition-all duration-300">
+      <div class="text-blue-500">
+        <i class="fas fa-cloud-upload-alt text-5xl mb-3"></i>
+        <p class="text-lg">拖放 JSON 审计报告文件到此处</p>
+        <p class="text-sm mt-2 text-blue-400">或点击上方"上传报告"按钮</p>
+      </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- 报告摘要 -->
+        <div class="lg:col-span-12 bg-white rounded-lg shadow-md p-6 mb-6 hover-scale">
+          <div class="flex items-center mb-4">
+            <i class="fas fa-chart-pie text-primary mr-2"></i>
+            <h2 class="text-xl font-semibold text-gray-800">审计概览</h2>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="stat bg-base-100 shadow-sm rounded-lg card-gradient">
+              <div class="stat-title flex items-center"><i class="far fa-clock text-gray-400 mr-2"></i>审计时间</div>
+              <div class="stat-value text-lg" id="auditTime">-</div>
+            </div>
+            <div class="stat bg-base-100 shadow-sm rounded-lg card-gradient">
+              <div class="stat-title flex items-center"><i class="fas fa-code text-gray-400 mr-2"></i>Solidity 版本</div>
+              <div class="stat-value text-lg" id="solcVersion">-</div>
+            </div>
+            <div class="stat bg-base-100 shadow-sm rounded-lg card-gradient">
+              <div class="stat-title flex items-center"><i class="far fa-file-code text-gray-400 mr-2"></i>文件数量</div>
+              <div class="stat-value text-lg" id="fileCount">-</div>
+            </div>
+            <div class="stat bg-base-100 shadow-sm rounded-lg card-gradient">
+              <div class="stat-title flex items-center"><i class="fas fa-file-contract text-gray-400 mr-2"></i>合约数量
+              </div>
+              <div class="stat-value text-lg" id="contractCount">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 威胁统计卡片 -->
+        <div class="lg:col-span-4 bg-white rounded-lg shadow-md p-6 hover-scale">
+          <div class="flex items-center mb-4">
+            <i class="fas fa-bug text-primary mr-2"></i>
+            <h2 class="text-xl font-semibold text-gray-800">漏洞统计</h2>
+          </div>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-red-600 font-medium flex items-center">
+                <i class="fas fa-skull-crossbones mr-2"></i>高危
+              </span>
+              <div class="flex items-center">
+                <span id="highCount" class="text-red-600 font-bold mr-2">0</span>
+                <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                  <div id="highBar" class="bg-red-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-orange-500 font-medium flex items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>中危
+              </span>
+              <div class="flex items-center">
+                <span id="mediumCount" class="text-orange-500 font-bold mr-2">0</span>
+                <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                  <div id="mediumBar" class="bg-orange-500 h-2.5 rounded-full transition-all duration-500"
+                    style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-yellow-500 font-medium flex items-center">
+                <i class="fas fa-exclamation-circle mr-2"></i>低危
+              </span>
+              <div class="flex items-center">
+                <span id="lowCount" class="text-yellow-500 font-bold mr-2">0</span>
+                <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                  <div id="lowBar" class="bg-yellow-500 h-2.5 rounded-full transition-all duration-500"
+                    style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-blue-500 font-medium flex items-center">
+                <i class="fas fa-info-circle mr-2"></i>提示
+              </span>
+              <div class="flex items-center">
+                <span id="infoCount" class="text-blue-500 font-bold mr-2">0</span>
+                <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                  <div id="infoBar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-500"
+                    style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 合约列表 -->
+        <div class="lg:col-span-8 bg-white rounded-lg shadow-md p-6 hover-scale">
+          <div class="flex items-center mb-4">
+            <i class="fas fa-file-contract text-primary mr-2"></i>
+            <h2 class="text-xl font-semibold text-gray-800">被审计合约</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="table w-full">
+              <thead>
+                <tr>
+                  <th class="bg-gray-50">合约名称</th>
+                  <th class="bg-gray-50">所在文件</th>
+                  <th class="bg-gray-50">状态</th>
+                </tr>
+              </thead>
+              <tbody id="contractsList">
+                <!-- 合约将通过JS动态插入 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 漏洞列表 -->
+        <div class="lg:col-span-12 bg-white rounded-lg shadow-md p-6">
+          <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center">
+              <i class="fas fa-shield-virus text-primary mr-2"></i>
+              <h2 class="text-xl font-semibold text-gray-800">漏洞详情</h2>
+            </div>
+            <div class="flex space-x-2">
+              <select id="vulnerabilityFilter" class="select select-bordered select-sm"
+                onchange="filterVulnerabilities()">
+                <option value="all">全部漏洞</option>
+                <option value="high">高危</option>
+                <option value="medium">中危</option>
+                <option value="low">低危</option>
+                <option value="informational">提示</option>
+              </select>
+            </div>
+          </div>
+          <div id="vulnerabilitiesContainer" class="space-y-4">
+            <!-- 漏洞详情将通过JS动态插入 -->
+            <div id="noVulnerabilities" class="text-center py-10 text-gray-500">
+              <i class="fas fa-shield-check text-6xl text-gray-300 mb-4"></i>
+              <p class="text-lg">未发现漏洞或尚未加载报告</p>
+              <p class="text-sm text-gray-400 mt-2">上传报告文件或选择示例报告开始分析</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-base-100 py-4 border-t border-gray-200 mt-8">
+      <div class="container mx-auto text-center text-sm text-gray-500">
+        <p>© 2025 静态分析插件 | 智能合约安全审计报告</p>
+      </div>
+
+      <!-- 添加隐藏的PDF报告内容容器 -->
+      <div id="reportContent" class="hidden">
+        <!-- PDF报告内容将由JavaScript动态生成 -->
+      </div>
+    </footer>
+
+    <!-- 漏洞项模板 -->
+    <template id="vulnerabilityTemplate">
+      <div class="vulnerability-item border rounded-lg overflow-hidden transition-all duration-200" data-impact="">
+        <div class="collapse collapse-arrow">
+          <input type="checkbox" class="peer" />
+          <div class="collapse-title bg-base-200 flex items-center">
+            <div class="severity-badge mr-3"></div>
+            <div class="flex-grow">
+              <h3 class="font-semibold vulnerability-title"></h3>
+              <p class="text-sm text-gray-600 vulnerability-location"></p>
+            </div>
+          </div>
+          <div class="collapse-content bg-white p-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <h4 class="font-medium text-gray-800 mb-2 flex items-center">
+                  <i class="fas fa-info-circle mr-2 text-primary"></i>漏洞描述
+                </h4>
+                <p class="vulnerability-description mb-4 text-gray-700"></p>
+
+                <h4 class="font-medium text-gray-800 mb-2 flex items-center">
+                  <i class="fas fa-code mr-2 text-primary"></i>漏洞代码
+                </h4>
+                <pre class="vulnerability-code rounded-md p-4 bg-gray-800 text-sm overflow-auto"></pre>
+
+                <!-- 代码查看按钮 -->
+                <div class="flex space-x-2 mt-2">
+                  <button class="btn btn-sm btn-outline show-context-btn transition-all duration-200">
+                    <i class="fas fa-eye mr-1"></i>
+                    <span class="btn-text">显示上下文</span>
+                  </button>
+                  <button class="btn btn-sm btn-outline show-file-btn transition-all duration-200">
+                    <i class="fas fa-file-code mr-1"></i>
+                    查看完整文件
+                  </button>
+                </div>
+
+                <!-- 代码上下文显示区域 -->
+                <div class="code-context hidden mt-4"></div>
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-800 mb-2 flex items-center">
+                  <i class="fas fa-exclamation-triangle mr-2 text-primary"></i>漏洞影响
+                </h4>
+                <p class="vulnerability-impact mb-4 text-gray-700"></p>
+
+                <h4 class="font-medium text-gray-800 mb-2 flex items-center">
+                  <i class="fas fa-tools mr-2 text-primary"></i>修复建议
+                </h4>
+                <p class="vulnerability-recommendation text-gray-700"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <!-- 第三方依赖 -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-solidity.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+
+  <!-- 核心功能模块 -->
+  <script src="./js/code-viewer.js"></script>
+  <script src="./js/main.js"></script>
+
+  <!-- 初始化代码查看模块 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 初始化代码查看模块
+      if (window.CodeViewer) {
+        window.CodeViewer.init();
+      }
+    });
+  </script>
+</body>
+
+</html>

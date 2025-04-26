@@ -1,0 +1,238 @@
+{
+  "success": true,
+  "error": null,
+  "results": {
+    "detectors": [
+      {
+        "elements": [
+          {
+            "type": "function",
+            "name": "withdraw",
+            "source_mapping": {
+              "start": 450,
+              "length": 242,
+              "filename_relative": "contracts/Vault.sol",
+              "filename_absolute": "/d/projects/audit/contracts/Vault.sol",
+              "filename_short": "contracts/Vault.sol",
+              "is_dependency": false,
+              "lines": [
+                19,
+                20,
+                21,
+                22,
+                23,
+                24
+              ],
+              "starting_column": 3,
+              "ending_column": 4
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Vault",
+                "source_mapping": {
+                  "start": 25,
+                  "length": 730,
+                  "filename_relative": "contracts/Vault.sol",
+                  "filename_absolute": "/d/projects/audit/contracts/Vault.sol",
+                  "filename_short": "contracts/Vault.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "withdraw(uint256)"
+            }
+          }
+        ],
+        "description": "Vault.withdraw(uint256) (contracts/Vault.sol#19-24) performs a call to msg.sender.call{value: amount}() (contracts/Vault.sol#21) after the transfer (contracts/Vault.sol#23)\nConsider reordering the statements to avoid reentrancy",
+        "background": "Reentrancy is when storage variables are modified after an external call. External calls can allow an attacker to reenter the function. Read more at https://blog.pessimistic.io/reentrancy-attacks-on-smart-contracts-distilled-7fed3b04f4b6",
+        "id": "reentrancy-events",
+        "check": "reentrancy-no-eth",
+        "impact": "High",
+        "confidence": "Medium",
+        "first_markdown_element": "contracts/Vault.sol#L19-L24",
+        "markdown": "Vault.withdraw(uint256) (contracts/Vault.sol#19-24) performs a call to msg.sender.call{value: amount}() (contracts/Vault.sol#21) after the transfer (contracts/Vault.sol#23)\nConsider reordering the statements to avoid reentrancy"
+      },
+      {
+        "elements": [
+          {
+            "type": "function",
+            "name": "_transfer",
+            "source_mapping": {
+              "start": 301,
+              "length": 139,
+              "filename_relative": "contracts/TokenContract.sol",
+              "filename_absolute": "/d/projects/audit/contracts/TokenContract.sol",
+              "filename_short": "contracts/TokenContract.sol",
+              "is_dependency": false,
+              "lines": [
+                14,
+                15,
+                16,
+                17,
+                18
+              ],
+              "starting_column": 3,
+              "ending_column": 4
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "TokenContract",
+                "source_mapping": {
+                  "start": 25,
+                  "length": 586,
+                  "filename_relative": "contracts/TokenContract.sol",
+                  "filename_absolute": "/d/projects/audit/contracts/TokenContract.sol",
+                  "filename_short": "contracts/TokenContract.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "_transfer(address,address,uint256)"
+            }
+          }
+        ],
+        "description": "TokenContract._transfer(address,address,uint256) (contracts/TokenContract.sol#14-18) uses an obsolete version of Solidity (0.7.6). Consider updating to at least version 0.8.0 to get built-in overflow checks.",
+        "background": "Starting from Solidity 0.8.0, all arithmetic operations revert on over/underflow by default. Prior to this, unsigned integers silently wrap upon overflow, leading to potential vulnerabilities.",
+        "id": "solc-version",
+        "check": "solc-version",
+        "impact": "Medium",
+        "confidence": "High",
+        "first_markdown_element": "contracts/TokenContract.sol#L14-L18",
+        "markdown": "TokenContract._transfer(address,address,uint256) (contracts/TokenContract.sol#14-18) uses an obsolete version of Solidity (0.7.6). Consider updating to at least version 0.8.0 to get built-in overflow checks."
+      },
+      {
+        "elements": [
+          {
+            "type": "function",
+            "name": "distributeRewards",
+            "source_mapping": {
+              "start": 420,
+              "length": 176,
+              "filename_relative": "contracts/Exchange.sol",
+              "filename_absolute": "/d/projects/audit/contracts/Exchange.sol",
+              "filename_short": "contracts/Exchange.sol",
+              "is_dependency": false,
+              "lines": [
+                17,
+                18,
+                19,
+                20,
+                21,
+                22
+              ],
+              "starting_column": 3,
+              "ending_column": 4
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "Exchange",
+                "source_mapping": {
+                  "start": 25,
+                  "length": 630,
+                  "filename_relative": "contracts/Exchange.sol",
+                  "filename_absolute": "/d/projects/audit/contracts/Exchange.sol",
+                  "filename_short": "contracts/Exchange.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "distributeRewards()"
+            }
+          }
+        ],
+        "description": "Exchange.distributeRewards() (contracts/Exchange.sol#17-22) has a loop that uses users.length for iterations. This might result in a DoS issue if the array becomes too large.",
+        "background": "Operations such as looping through large arrays can consume all available gas, causing transactions to fail.",
+        "id": "gas-loop",
+        "check": "gas-loop",
+        "impact": "Medium",
+        "confidence": "Medium",
+        "first_markdown_element": "contracts/Exchange.sol#L17-L22",
+        "markdown": "Exchange.distributeRewards() (contracts/Exchange.sol#17-22) has a loop that uses users.length for iterations. This might result in a DoS issue if the array becomes too large."
+      }
+    ]
+  }
+}

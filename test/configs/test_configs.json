@@ -1,0 +1,294 @@
+{
+  "detectors": {
+    "numerical": {
+      "name": "数值异常检测器",
+      "flag": "--detect interval-numerical-anomalies,defi-range-violation",
+      "description": "基于增强区间分析的高可信度数值异常和DeFi区间违规检测",
+      "category": "增强插件-数值分析"
+    },
+    "flashloan": {
+      "name": "闪电贷检测器",
+      "flag": "--detect flashloan-callback-risks,unbounded-flashloan-risk",
+      "description": "检测闪电贷回调风险和无边界闪电贷风险",
+      "category": "增强插件-DeFi"
+    },
+    "token_balance": {
+      "name": "代币余额检测器",
+      "flag": "--detect unchecked-balance-change",
+      "description": "检测未检查的代币余额变化",
+      "category": "增强插件-安全性"
+    },
+    "interval_violation": {
+      "name": "区间违规检测器",
+      "flag": "--detect interval-violation",
+      "description": "检测智能合约中的一般数值范围违规",
+      "category": "增强插件-数值分析"
+    },
+    "mixed": {
+      "name": "混合漏洞检测器",
+      "flag": "--detect interval-numerical-anomalies,flashloan-callback-risks,interval-violation,defi-range-violation,unbounded-flashloan-risk,unchecked-balance-change",
+      "description": "运行所有增强插件检测器进行综合检测",
+      "category": "增强插件-汇总"
+    },
+    "reentrancy": {
+      "name": "重入攻击检测器 (标准)",
+      "flag": "--detect reentrancy",
+      "description": "标准Slither重入攻击检测器",
+      "category": "标准检测器"
+    },
+    "arithmetic": {
+      "name": "算术检查器 (标准)",
+      "flag": "--detect arithmetic",
+      "description": "标准Slither算术检查器",
+      "category": "标准检测器"
+    }
+  },
+  "test_sets": {
+    "enhanced_numerical": {
+      "name": "数值分析测试集",
+      "path": "TestContracts/EnhancedTests/NumericalAnalysis",
+      "description": "针对数值异常和区间违规检测的测试合约集",
+      "test_count": 2
+    },
+    "enhanced_flashloan": {
+      "name": "闪电贷测试集",
+      "path": "TestContracts/EnhancedTests/FlashloanVulnerability",
+      "description": "测试闪电贷相关漏洞的合约集",
+      "test_count": 2
+    },
+    "enhanced_token": {
+      "name": "代币余额测试集",
+      "path": "TestContracts/EnhancedTests/TokenBalance",
+      "description": "测试代币余额未检查问题的合约集",
+      "test_count": 1
+    },
+    "enhanced_mixed": {
+      "name": "混合漏洞测试集",
+      "path": "TestContracts/EnhancedTests/Mixed",
+      "description": "包含多种漏洞的复杂DeFi协议合约",
+      "test_count": 1
+    },
+    "legacy": {
+      "name": "传统测试集",
+      "path": "TestContracts/Legacy",
+      "description": "传统测试合约集，包含基本漏洞类型",
+      "test_count": 15
+    }
+  },
+  "ground_truth": {
+    "DeFiProtocol.sol": {
+      "total_vulnerabilities": 8,
+      "numerical_issues": 4,
+      "flashloan_issues": 3,
+      "token_balance_issues": 1,
+      "severity": {
+        "high": 5,
+        "medium": 3,
+        "low": 0
+      },
+      "vulnerability_types": {
+        "interval-numerical-anomalies": 2,
+        "defi-range-violation": 2,
+        "flashloan-callback-risks": 2,
+        "unbounded-flashloan-risk": 1,
+        "unchecked-balance-change": 1
+      },
+      "description": "包含多种混合漏洞的测试合约，用于评估各检测器性能"
+    },
+    "NumericalOverflow.sol": {
+      "total_vulnerabilities": 4,
+      "numerical_issues": 4,
+      "flashloan_issues": 0,
+      "token_balance_issues": 0,
+      "severity": {
+        "high": 2,
+        "medium": 2,
+        "low": 0
+      },
+      "vulnerability_types": {
+        "interval-numerical-anomalies": 2,
+        "defi-range-violation": 2
+      },
+      "description": "包含数值计算异常和区间违规的测试合约"
+    },
+    "FlashloanVulnerable.sol": {
+      "total_vulnerabilities": 3,
+      "numerical_issues": 0,
+      "flashloan_issues": 3,
+      "token_balance_issues": 0,
+      "severity": {
+        "high": 3,
+        "medium": 0,
+        "low": 0
+      },
+      "vulnerability_types": {
+        "flashloan-callback-risks": 2,
+        "unbounded-flashloan-risk": 1
+      },
+      "description": "包含闪电贷回调风险和无边界闪电贷风险的测试合约"
+    },
+    "UncheckedTokenBalance.sol": {
+      "total_vulnerabilities": 2,
+      "numerical_issues": 0,
+      "flashloan_issues": 0,
+      "token_balance_issues": 2,
+      "severity": {
+        "high": 1,
+        "medium": 1,
+        "low": 0
+      },
+      "vulnerability_types": {
+        "unchecked-balance-change": 2
+      },
+      "description": "包含代币余额未检查问题的测试合约"
+    },
+    "BaselineReentrancy.sol": {
+      "total_vulnerabilities": 1,
+      "numerical_issues": 0,
+      "flashloan_issues": 0,
+      "token_balance_issues": 0,
+      "severity": {
+        "high": 1,
+        "medium": 0,
+        "low": 0
+      },
+      "vulnerability_types": {
+        "reentrancy": 1
+      },
+      "description": "包含基础重入漏洞的测试合约"
+    },
+    "BaselineOverflow.sol": {
+      "total_vulnerabilities": 3,
+      "numerical_issues": 3,
+      "flashloan_issues": 0,
+      "token_balance_issues": 0,
+      "severity": {
+        "high": 2,
+        "medium": 1,
+        "low": 0
+      },
+      "vulnerability_types": {
+        "arithmetic": 3
+      },
+      "description": "包含整数溢出漏洞的测试合约"
+    }
+  },
+  "performance_metrics": {
+    "execution_time": {
+      "name": "执行时间",
+      "description": "执行分析所需的时间（秒）",
+      "better_if_lower": true
+    },
+    "issues_found": {
+      "name": "发现的问题",
+      "description": "检测到的问题总数",
+      "better_if_higher": true
+    },
+    "high_severity": {
+      "name": "高严重性问题",
+      "description": "高严重性问题数量",
+      "improvement_direction": "increase"
+    },
+    "medium_severity": {
+      "name": "中严重性问题",
+      "description": "中严重性问题数量",
+      "improvement_direction": "increase"
+    },
+    "low_severity": {
+      "name": "低严重性问题",
+      "description": "低严重性问题数量",
+      "improvement_direction": "increase"
+    }
+  },
+  "detection_quality_metrics": {
+    "precision": {
+      "name": "精确率",
+      "description": "检测到的真实漏洞占所有检测结果的比例",
+      "formula": "TP/(TP+FP)",
+      "better_if_higher": true
+    },
+    "recall": {
+      "name": "召回率",
+      "description": "检测到的真实漏洞占所有实际漏洞的比例",
+      "formula": "TP/(TP+FN)",
+      "better_if_higher": true
+    },
+    "false_positive_rate": {
+      "name": "误报率",
+      "description": "错误检测为漏洞的比例",
+      "formula": "FP/(FP+TN)",
+      "better_if_lower": true
+    },
+    "f1_score": {
+      "name": "F1分数",
+      "description": "精确率和召回率的调和平均值",
+      "formula": "2*Precision*Recall/(Precision+Recall)",
+      "better_if_higher": true
+    }
+  },
+  "severity_levels": {
+    "high": {
+      "name": "高危",
+      "weight": 3
+    },
+    "medium": {
+      "name": "中危",
+      "weight": 2
+    },
+    "low": {
+      "name": "低危",
+      "weight": 1
+    },
+    "informational": {
+      "name": "提示",
+      "weight": 0.5
+    }
+  },
+  "commands": {
+    "original": {
+      "name": "原版Slither",
+      "command": "slither",
+      "options": "--json -",
+      "description": "原版Slither命令"
+    },
+    "enhanced": {
+      "name": "增强版Slither",
+      "command": "slither",
+      "options": "--json -",
+      "description": "增强版Slither命令 (使用 --detect 标志运行指定检测器)"
+    }
+  },
+  "smartbugs_categories": [
+    "arithmetic",
+    "reentrancy",
+    "access_control",
+    "denial_of_service"
+  ],
+  "smartbugs_max_contracts": 4,
+  "smartbugs_selected_contracts": {
+    "arithmetic": [
+      "integer_overflow_mul.sol",
+      "overflow_simple_add.sol",
+      "tokensalechallenge.sol",
+      "BECToken.sol"
+    ],
+    "reentrancy": [
+      "reentrancy_cross_function.sol",
+      "reentrancy_dao.sol",
+      "etherbank.sol",
+      "spank_chain_payment.sol"
+    ],
+    "access_control": [
+      "proxy.sol",
+      "wallet_04_confused_sign.sol",
+      "multiowned_vulnerable.sol",
+      "parity_wallet_bug_1.sol"
+    ],
+    "denial_of_service": [
+      "dos_address.sol",
+      "auction.sol",
+      "send_loop.sol",
+      "list_dos.sol"
+    ]
+  }
+}

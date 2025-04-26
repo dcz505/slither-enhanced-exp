@@ -1,0 +1,372 @@
+/* 主要样式 */
+:root {
+  --high-severity: #ef4444;
+  --medium-severity: #f97316;
+  --low-severity: #eab308;
+  --info-severity: #3b82f6;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 漏洞严重程度徽章 - 更新为使用 DaisyUI 徽章 */
+.severity-badge {
+  font-size: 0.75rem !important;
+  height: 1.5rem !important;
+  font-weight: 600 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4em;
+  text-align: center;
+}
+
+/* 徽章颜色增强 */
+.badge-error {
+  background-color: var(--high-severity) !important;
+  color: white !important;
+}
+
+.badge-warning {
+  background-color: var(--medium-severity) !important;
+  color: white !important;
+}
+
+.badge-info {
+  background-color: var(--low-severity) !important;
+  color: white !important;
+}
+
+.badge-neutral {
+  background-color: var(--info-severity) !important;
+  color: white !important;
+}
+
+/* 漏洞项悬停效果 */
+.vulnerability-item:hover .collapse-title {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* 代码高亮区域 */
+.vulnerability-code {
+  max-height: 300px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  border: 1px solid #333;
+  position: relative;
+}
+
+/* 代码区域光标指示器 */
+.code-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  border-bottom-left-radius: 4px;
+}
+
+/* 响应式调整 */
+@media (max-width: 1023px) {
+  .lg\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .stat-value {
+    font-size: 1rem !important;
+  }
+
+  .collapse-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .severity-badge {
+    margin-bottom: 8px;
+  }
+
+  /* 导航栏移动端优化 */
+  header .btn-sm {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  header .fas {
+    font-size: 0.85rem;
+  }
+
+  header .fa-shield-alt {
+    font-size: 1.5rem;
+  }
+
+  header .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  header .space-x-2> :not([hidden])~ :not([hidden]) {
+    --tw-space-x-reverse: 0;
+    margin-right: calc(0.25rem * var(--tw-space-x-reverse));
+    margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
+  }
+}
+
+/* 在非常小的屏幕上进一步压缩 */
+@media (max-width: 380px) {
+  header .btn-sm {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    min-height: 1.75rem;
+    height: 1.75rem;
+  }
+
+  header .fas {
+    margin-right: 0.15rem !important;
+  }
+}
+
+/* 代码行高亮 */
+.highlighted-line {
+  background-color: rgba(255, 255, 0, 0.15);
+  display: block;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+}
+
+/* 区间分析结果样式 */
+.interval-value {
+  font-family: monospace;
+  padding: 2px 6px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* 表格调整 */
+.table td,
+.table th {
+  padding: 0.75rem 1rem;
+}
+
+/* 安全状态指示器 */
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-safe {
+  background-color: #10b981;
+}
+
+.status-warning {
+  background-color: #f59e0b;
+}
+
+.status-vulnerable {
+  background-color: #ef4444;
+}
+
+/* 漏洞位置信息样式 */
+.vulnerability-location {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+/* 漏洞描述区域 */
+.vulnerability-description,
+.vulnerability-impact,
+.vulnerability-recommendation {
+  line-height: 1.5;
+}
+
+/* 漏洞 title 加强显示 */
+.vulnerability-title {
+  font-size: 1.05rem;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.vulnerability-item {
+  position: relative;
+  transition: all 0.2s ease-out;
+  border-color: #e2e8f0;
+  animation: fadeIn 0.3s ease-in-out;
+  border-left: 3px solid transparent;
+  transition: border-left-color 0.2s ease;
+}
+
+.vulnerability-item:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.vulnerability-item[data-impact="high"] {
+  border-left-color: var(--high-severity);
+}
+
+.vulnerability-item[data-impact="medium"] {
+  border-left-color: var(--medium-severity);
+}
+
+.vulnerability-item[data-impact="low"] {
+  border-left-color: var(--low-severity);
+}
+
+.vulnerability-item[data-impact="informational"] {
+  border-left-color: var(--info-severity);
+}
+
+/* 漏洞筛选过渡效果 */
+.vulnerability-item {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.vulnerability-item[style*="display: none"] {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* 卡片展开/折叠动画 */
+.collapse-content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+}
+
+.collapse-arrow:has(input:checked)+.collapse-content {
+  max-height: 2000px;
+  /* 足够大的值以确保内容显示 */
+  transition: max-height 0.5s ease-in-out, padding 0.3s ease-in-out;
+}
+
+/* 代码查看按钮悬停效果 */
+.show-context-btn,
+.show-file-btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.show-context-btn:hover,
+.show-file-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 打印样式 */
+@media print {
+  body {
+    background-color: white;
+  }
+
+  .no-print {
+    display: none;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .collapse-content {
+    display: block !important;
+  }
+}
+
+/* 拖放区域样式 */
+#dropArea {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+#dropArea.active {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: scale(1.02);
+}
+
+/* 下载按钮悬停效果 */
+.dropdown-content li:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-radius: 4px;
+}
+
+.dropdown-content li a {
+  display: block;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* 无漏洞提示样式增强 */
+#noVulnerabilities {
+  padding: 2rem 0;
+  transition: opacity 0.3s ease;
+}
+
+/* 最大内容宽度限制，提高可读性 */
+.collapse-content {
+  max-width: 100%;
+}
+
+/* 加载提示 */
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(59, 130, 246, 0.1);
+  border-left-color: var(--info-severity);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}

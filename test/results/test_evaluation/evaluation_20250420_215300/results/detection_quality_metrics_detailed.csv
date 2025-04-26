@@ -1,0 +1,4 @@
+合约文件,检测器,检测器类别,漏洞类型,真实漏洞数,原始_TP,原始_FP,原始_FN,原始_TN,原始_精确率,原始_召回率,原始_误报率,原始_F1分数,增强_TP,增强_FP,增强_FN,增强_TN,增强_精确率,增强_召回率,增强_误报率,增强_F1分数,精确率改进(%),召回率改进(%),误报率改进(%),F1分数改进(%)
+DeFiProtocolWithMultipleVulnerabilities.sol,数值异常检测器,增强插件-数值分析,numerical,4,0,0,4,46,0,0.0,0.0,0,4,0,0,46,1.0,1.0,0.0,1.0,100,100,0,100
+DeFiProtocolWithMultipleVulnerabilities.sol,闪电贷检测器,增强插件-DeFi,flashloan,3,0,0,3,47,0,0.0,0.0,0,3,0,0,47,1.0,1.0,0.0,1.0,100,100,0,100
+DeFiProtocolWithMultipleVulnerabilities.sol,代币余额检测器,增强插件-安全性,token_balance,1,0,0,1,49,0,0.0,0.0,0,0,0,1,49,0.0,0.0,0.0,0.0,0,0,0,0

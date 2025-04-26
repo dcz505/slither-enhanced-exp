@@ -1,0 +1,14 @@
+{
+  "commands": {
+    "original": {
+      "name": "原版Slither",
+      "command": "slither",
+      "options": "{contract} --json-types detectors --solc-disable-warnings"
+    },
+    "enhanced": {
+      "name": "增强版Slither",
+      "command": "slither",
+      "options": "{contract} --json-types detectors --solc-disable-warnings"
+    }
+  }
+}
