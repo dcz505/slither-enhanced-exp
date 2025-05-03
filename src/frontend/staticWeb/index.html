@@ -5,80 +5,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>智能合约审计报告</title>
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="./css/style.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
-  <!-- 代码查看模块样式 -->
+  <!-- Vite处理CSS -->
+  <link rel="stylesheet" href="./src/style.css">
   <link rel="stylesheet" href="./css/code-viewer.css">
-  <!-- 添加字体和图标 -->
+  <!-- 本地依赖 -->
+  <link rel="stylesheet" href="./node_modules/prismjs/themes/prism-tomorrow.min.css">
+  <link rel="stylesheet" href="./node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+  <!-- 可以继续使用Google Fonts的CDN -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    }
-
-    .animate-pulse {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: .7;
-      }
-    }
-
-    .hover-scale {
-      transition: transform 0.2s ease;
-    }
-
-    .hover-scale:hover {
-      transform: scale(1.02);
-    }
-
-    .card-gradient {
-      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-    }
-
-    /* 加载指示器样式 */
-    .loading-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      background-color: rgba(255, 255, 255, 0.9);
-      z-index: 9999;
-      backdrop-filter: blur(3px);
-    }
-
-    .loading-spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid rgba(0, 0, 0, 0.1);
-      border-radius: 50%;
-      border-top-color: #3b82f6;
-      animation: spin 1s ease-in-out infinite;
-      margin-bottom: 10px;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
+  <!-- Vite入口点 -->
+  <script type="module" src="/src/main.js"></script>
 </head>
 
 <body class="bg-gray-50">
@@ -97,15 +33,14 @@
           <h1 class="text-xl md:text-2xl font-bold hidden md:inline">智能合约审计报告</h1>
         </div>
         <div class="flex space-x-2">
-          <!-- 历史记录菜单 -->
-          <div class="dropdown dropdown-end">
-            <button tabindex="0" class="btn btn-sm btn-outline btn-secondary">
+          <!-- 历史记录菜单 - 使用DaisyUI 5兼容的dropdown -->
+          <details class="dropdown dropdown-end">
+            <summary class="btn btn-sm btn-outline-secondary">
               <i class="fas fa-history mr-1"></i>
               <span class="hidden md:inline">历史记录</span>
               <span class="inline md:hidden">历史</span>
-            </button>
-            <ul tabindex="0" id="historyList"
-              class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64">
+            </summary>
+            <ul class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64">
               <li class="menu-title">
                 <span>最近的报告</span>
               </li>
@@ -116,27 +51,27 @@
               <li class="divider"></li>
               <li><a id="clearHistoryBtn" class="text-error"><i class="fas fa-trash mr-2"></i>清除历史记录</a></li>
             </ul>
-          </div>
+          </details>
 
           <!-- 上传按钮 -->
-          <button id="uploadReportBtn" class="btn btn-sm btn-outline btn-accent">
+          <button id="uploadReportBtn" class="btn btn-sm btn-outline-accent">
             <i class="fas fa-upload mr-1"></i>
             <span class="hidden md:inline">上传报告</span>
             <span class="inline md:hidden">上传</span>
           </button>
 
           <!-- 导出菜单 -->
-          <div class="dropdown dropdown-end">
-            <button tabindex="0" class="btn btn-sm btn-outline">
+          <details class="dropdown dropdown-end">
+            <summary class="btn btn-sm btn-outline">
               <i class="fas fa-download mr-1"></i>
               <span class="hidden md:inline">导出报告</span>
               <span class="inline md:hidden">导出</span>
-            </button>
-            <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+            </summary>
+            <ul class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
               <li><a id="downloadJsonBtn"><i class="fas fa-file-code mr-2"></i>JSON格式</a></li>
               <li><a id="downloadPdfBtn"><i class="fas fa-file-pdf mr-2"></i>PDF格式</a></li>
             </ul>
-          </div>
+          </details>
         </div>
       </div>
     </header>
@@ -306,15 +241,14 @@
     <!-- 漏洞项模板 -->
     <template id="vulnerabilityTemplate">
       <div class="vulnerability-item border rounded-lg overflow-hidden transition-all duration-200" data-impact="">
-        <div class="collapse collapse-arrow">
-          <input type="checkbox" class="peer" />
-          <div class="collapse-title bg-base-200 flex items-center">
+        <details class="collapse">
+          <summary class="collapse-title bg-base-200 flex items-center">
             <div class="severity-badge mr-3"></div>
             <div class="flex-grow">
               <h3 class="font-semibold vulnerability-title"></h3>
               <p class="text-sm text-gray-600 vulnerability-location"></p>
             </div>
-          </div>
+          </summary>
           <div class="collapse-content bg-white p-4">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
@@ -356,29 +290,19 @@
               </div>
             </div>
           </div>
-        </div>
+        </details>
       </div>
     </template>
   </div>
 
-  <!-- 第三方依赖 -->
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-solidity.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <!-- 使用本地第三方依赖 -->
+  <script src="./node_modules/prismjs/prism.js"></script>
+  <script src="./node_modules/prismjs/components/prism-solidity.min.js"></script>
+  <script src="./node_modules/html2pdf.js/dist/html2pdf.bundle.min.js"></script>
 
   <!-- 核心功能模块 -->
   <script src="./js/code-viewer.js"></script>
   <script src="./js/main.js"></script>
-
-  <!-- 初始化代码查看模块 -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // 初始化代码查看模块
-      if (window.CodeViewer) {
-        window.CodeViewer.init();
-      }
-    });
-  </script>
 </body>
 
 </html>
