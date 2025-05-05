@@ -3,6 +3,76 @@ let reportData = null;
 const MAX_HISTORY_ITEMS = 5; // 最大历史记录数量
 const MAX_HISTORY_SIZE_MB = 5; // 历史记录最大占用空间（MB）
 
+// 主题切换功能
+function setupThemeSwitch() {
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+  if (!themeToggleBtn) return;
+
+  // 从localStorage加载主题设置
+  const savedTheme = localStorage.getItem('slitherTheme') || 'light';
+
+  // 设置初始主题
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeIcon(savedTheme);
+
+  // 点击事件处理
+  themeToggleBtn.addEventListener('click', function () {
+    // 获取当前主题
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    // 切换到新主题
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+    // 更新HTML根元素的data-theme属性
+    document.documentElement.setAttribute('data-theme', newTheme);
+
+    // 保存主题设置
+    localStorage.setItem('slitherTheme', newTheme);
+
+    // 更新图标
+    updateThemeIcon(newTheme);
+
+    // 更新dropArea样式
+    updateDropAreaStyle(newTheme);
+
+    console.log('主题已切换为:', newTheme);
+  });
+}
+
+// 更新dropArea的样式
+function updateDropAreaStyle(theme) {
+  const dropArea = document.getElementById('dropArea');
+  if (!dropArea) return;
+
+  // 移除所有主题相关类
+  dropArea.classList.remove('bg-blue-50', 'bg-blue-100', 'border-blue-500');
+
+  // 根据主题设置适当的样式
+  if (theme === 'dark') {
+    // 深色主题样式已在CSS中通过[data-theme="dark"] #dropArea定义
+  } else {
+    // 浅色主题，重置为默认样式
+    dropArea.classList.add('bg-blue-50');
+    dropArea.classList.add('border-dashed');
+    dropArea.classList.add('border-blue-300');
+  }
+}
+
+// 更新主题图标
+function updateThemeIcon(theme) {
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  if (!themeToggleBtn) return;
+
+  // 根据当前主题调整图标
+  if (theme === 'dark') {
+    themeToggleBtn.innerHTML = '<i class="fas fa-shield-alt text-2xl"></i><i class="fas fa-moon text-xs absolute top-0 right-0"></i>';
+    themeToggleBtn.title = '切换到浅色模式';
+  } else {
+    themeToggleBtn.innerHTML = '<i class="fas fa-shield-alt text-2xl"></i><i class="fas fa-sun text-xs absolute top-0 right-0"></i>';
+    themeToggleBtn.title = '切换到深色模式';
+  }
+}
+
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
   // 显示加载指示器
@@ -10,6 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (loadingIndicator) {
     loadingIndicator.style.display = 'flex';
   }
+
+  // 设置主题切换功能
+  setupThemeSwitch();
+
+  // 应用当前主题样式到dropArea
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  updateDropAreaStyle(currentTheme);
 
   // 设置文件拖放功能
   setupFileDrop();
@@ -20,11 +97,32 @@ document.addEventListener('DOMContentLoaded', () => {
     uploadBtn.addEventListener('click', uploadReport);
   }
 
+  // 设置事件监听器 - 加载示例报告
+  const loadExampleBtn = document.getElementById('loadExampleBtn');
+  if (loadExampleBtn) {
+    loadExampleBtn.addEventListener('click', function () {
+      loadDefaultReport();
+      // 隐藏拖放区域，因为已经加载了报告
+      const dropArea = document.getElementById('dropArea');
+      if (dropArea) {
+        dropArea.classList.add('hidden');
+      }
+    });
+  }
+
   // 设置事件监听器 - 导出JSON
   const downloadJsonBtn = document.getElementById('downloadJsonBtn');
   if (downloadJsonBtn) {
     downloadJsonBtn.addEventListener('click', function () {
       downloadReport('json');
+    });
+  }
+
+  // 设置事件监听器 - 导出Markdown
+  const downloadMarkdownBtn = document.getElementById('downloadMarkdownBtn');
+  if (downloadMarkdownBtn) {
+    downloadMarkdownBtn.addEventListener('click', function () {
+      downloadReport('markdown');
     });
   }
 
@@ -40,38 +138,30 @@ document.addEventListener('DOMContentLoaded', () => {
     clearHistoryBtn.addEventListener('click', clearHistory);
   }
 
-  // 设置漏洞筛选器
-  const vulnerabilityFilter = document.getElementById('vulnerabilityFilter');
-  if (vulnerabilityFilter) {
-    vulnerabilityFilter.addEventListener('change', function () {
-      // 在事件处理函数中获取最新的筛选值
-      filterVulnerabilities(this.value);
-    });
+  // 设置清空当前报告按钮
+  const clearCurrentReportBtn = document.getElementById('clearCurrentReportBtn');
+  if (clearCurrentReportBtn) {
+    clearCurrentReportBtn.addEventListener('click', clearCurrentReport);
   }
+
+  // 设置漏洞筛选器
+  setupVulnerabilityFilter();
 
   // 初始化历史记录菜单
   loadHistoryMenu();
 
-  // 尝试从localStorage加载上次的报告
-  const savedReport = localStorage.getItem('slitherReport');
-  if (savedReport) {
-    try {
-      const reportData = JSON.parse(savedReport);
-      loadReport(reportData);
-      console.log('从本地存储加载了报告');
+  // 显示初始空白状态
+  clearReportDisplay();
 
-      // 隐藏加载指示器
-      if (loadingIndicator) {
-        loadingIndicator.style.display = 'none';
-      }
-    } catch (error) {
-      console.error('解析保存的报告时出错:', error);
-      // 如果解析失败，加载默认报告
-      loadDefaultReport();
-    }
-  } else {
-    // 如果没有保存的报告，加载默认报告
-    loadDefaultReport();
+  // 隐藏加载指示器
+  if (loadingIndicator) {
+    loadingIndicator.style.display = 'none';
+  }
+
+  // 显示拖放区域
+  const dropArea = document.getElementById('dropArea');
+  if (dropArea) {
+    dropArea.classList.remove('hidden');
   }
 });
 
@@ -209,6 +299,12 @@ function loadReportFromHistory(historyId) {
     // 保存为当前报告
     localStorage.setItem('slitherReport', JSON.stringify(historyItem.data));
 
+    // 隐藏拖放区域
+    const dropArea = document.getElementById('dropArea');
+    if (dropArea) {
+      dropArea.classList.add('hidden');
+    }
+
     // 隐藏加载指示器
     if (loadingIndicator) {
       loadingIndicator.style.display = 'none';
@@ -252,8 +348,8 @@ function loadDefaultReport() {
   console.log('尝试加载默认示例报告');
 
   try {
-    // 先尝试通过fetch加载
-    fetchAndLoadReport('./example-report.json')
+    // 先尝试通过fetch加载，不保存到localStorage，不添加到历史记录
+    fetchAndLoadReport('./example-report.json', false, false)
       .catch(error => {
         console.warn('通过fetch加载默认报告失败，尝试使用内置示例:', error);
         // 如果fetch失败，使用内置示例数据
@@ -391,14 +487,8 @@ function useBuiltinExampleData() {
     }
   };
 
-  // 加载内置示例数据
+  // 加载内置示例数据，不保存到localStorage
   loadReport(builtinExample);
-
-  // 保存到localStorage
-  localStorage.setItem('slitherReport', JSON.stringify(builtinExample));
-
-  // 添加到历史记录
-  addToHistory(builtinExample, '示例报告');
 
   // 隐藏加载指示器
   const loadingIndicator = document.getElementById('loadingIndicator');
@@ -408,7 +498,7 @@ function useBuiltinExampleData() {
 }
 
 // 用于获取并加载报告的函数
-function fetchAndLoadReport(url) {
+function fetchAndLoadReport(url, saveToLocalStorage = true, addToHistoryRecord = true) {
   console.log('开始获取报告:', url);
 
   // 显示加载指示器
@@ -427,10 +517,20 @@ function fetchAndLoadReport(url) {
     .then(data => {
       loadReport(data);
       // 可选保存到 localStorage
-      localStorage.setItem('slitherReport', JSON.stringify(data));
-      // 添加到历史记录，使用URL的最后部分作为显示名称
-      const fileName = url.split('/').pop().replace('.json', '');
-      addToHistory(data, fileName);
+      if (saveToLocalStorage) {
+        localStorage.setItem('slitherReport', JSON.stringify(data));
+      }
+      // 可选添加到历史记录
+      if (addToHistoryRecord) {
+        const fileName = url.split('/').pop().replace('.json', '');
+        addToHistory(data, fileName);
+      }
+
+      // 隐藏拖放区域
+      const dropArea = document.getElementById('dropArea');
+      if (dropArea) {
+        dropArea.classList.add('hidden');
+      }
 
       // 隐藏加载指示器
       if (loadingIndicator) {
@@ -454,24 +554,37 @@ function fetchAndLoadReport(url) {
 
 // 清空报告显示区域的函数
 function clearReportDisplay() {
-  // 清空统计数据
-  const stats = { high: 0, medium: 0, low: 0, informational: 0 };
-  renderVulnerabilityStats(stats);
-  // 清空概览
-  renderSummary({});
-  // 清空合约列表
-  renderContractsList([]);
-  // 清空漏洞列表并显示无漏洞提示
-  const container = document.getElementById('vulnerabilitiesContainer');
-  const noVulnDiv = document.getElementById('noVulnerabilities');
-  if (container && noVulnDiv) {
-    container.innerHTML = ''; // Clear previous items
-    container.appendChild(noVulnDiv); // Re-add the placeholder
-    noVulnDiv.style.display = 'block';
-  }
-  // 清空区间分析
-  renderIntervalAnalysis({});
-  reportData = null; // 重置全局数据
+  // 清空各个显示区域
+  const areas = [
+    'auditTime', 'solcVersion', 'fileCount', 'contractCount',
+    'highCount', 'mediumCount', 'lowCount', 'infoCount',
+    'highBar', 'mediumBar', 'lowBar', 'infoBar',
+    'contractsList', 'vulnerabilitiesContainer'
+  ];
+
+  areas.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      if (id === 'vulnerabilitiesContainer') {
+        element.innerHTML = `
+          <div id="noVulnerabilities" class="text-center py-10 text-gray-500">
+            <i class="fas fa-shield-check text-6xl text-gray-300 mb-4"></i>
+            <p class="text-lg">未发现漏洞或尚未加载报告</p>
+            <p class="text-sm text-gray-400 mt-2">上传报告文件或选择示例报告开始分析</p>
+          </div>
+        `;
+      } else {
+        element.innerHTML = id.includes('Count') ? '0' : '-';
+      }
+
+      if (id.includes('Bar')) {
+        element.style.width = '0%';
+      }
+    }
+  });
+
+  // 注释掉区间分析清理
+  // renderIntervalAnalysis({});
 }
 
 // 设置文件拖放功能
@@ -508,19 +621,38 @@ function setupFileDrop() {
 
   function highlight() {
     if (dropArea.id === 'dropArea') {
-      dropArea.classList.add('border-blue-500');
-      dropArea.classList.add('bg-blue-100');
+      // 检查当前主题
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+
+      if (currentTheme === 'dark') {
+        // 在深色主题下使用不同的高亮样式
+        dropArea.classList.add('active');
+      } else {
+        // 浅色主题保持原样式
+        dropArea.classList.add('border-blue-500');
+        dropArea.classList.add('bg-blue-100');
+      }
     } else {
-      dropArea.classList.add('bg-blue-50');
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      if (currentTheme === 'dark') {
+        dropArea.classList.add('bg-opacity-10');
+        dropArea.classList.add('bg-primary');
+      } else {
+        dropArea.classList.add('bg-blue-50');
+      }
     }
   }
 
   function unhighlight() {
     if (dropArea.id === 'dropArea') {
+      // 移除所有可能的高亮样式
+      dropArea.classList.remove('active');
       dropArea.classList.remove('border-blue-500');
       dropArea.classList.remove('bg-blue-100');
     } else {
       dropArea.classList.remove('bg-blue-50');
+      dropArea.classList.remove('bg-opacity-10');
+      dropArea.classList.remove('bg-primary');
     }
   }
 
@@ -588,6 +720,12 @@ function handleFiles(files) {
         // 隐藏加载指示器
         if (loadingIndicator) {
           loadingIndicator.style.display = 'none';
+        }
+
+        // 隐藏拖放区域
+        const dropArea = document.getElementById('dropArea');
+        if (dropArea) {
+          dropArea.classList.add('hidden');
         }
       } catch (error) {
         if (loadingIndicator) loadingIndicator.style.display = 'none';
@@ -710,9 +848,10 @@ function loadReport(data) {
     renderVulnerabilities(detectors);
 
     // 5. 渲染区间分析结果 (如果有的话)
-    if (reportData.interval_analysis) {
-      renderIntervalAnalysis(reportData.interval_analysis);
-    }
+    // 注释掉区间分析渲染，因为暂时不需要此功能
+    // if (reportData.interval_analysis) {
+    //   renderIntervalAnalysis(reportData.interval_analysis);
+    // }
 
     console.log('报告加载完成');
 
@@ -1342,109 +1481,184 @@ function getRecommendationByDetectorType(detectorType) {
 
 // 渲染区间分析结果
 function renderIntervalAnalysis(intervalData) {
-  const container = document.getElementById('intervalAnalysisContainer');
-  const pdfContainer = document.getElementById('pdf-intervalAnalysisContainer');
-  const section = document.getElementById('intervalAnalysisSection');
-  const pdfSection = document.getElementById('pdf-intervalAnalysisSection');
+  // // 检查必要的DOM元素是否存在
+  // const container = document.getElementById('intervalAnalysisContainer');
+  // const pdfContainer = document.getElementById('pdf-intervalAnalysisContainer');
+  // const section = document.getElementById('intervalAnalysisSection');
+  // const pdfSection = document.getElementById('pdf-intervalAnalysisSection');
 
-  container.innerHTML = '';
-  pdfContainer.innerHTML = '';
+  // // 如果任何必要元素不存在，则直接返回
+  // if (!container || !pdfContainer || !section || !pdfSection) {
+  //   console.log('区间分析所需的DOM元素不存在，跳过渲染');
+  //   return;
+  // }
 
-  if (!intervalData || Object.keys(intervalData).length === 0) {
-    section.style.display = 'none';
-    pdfSection.style.display = 'none';
+  // container.innerHTML = '';
+  // pdfContainer.innerHTML = '';
+
+  // if (!intervalData || Object.keys(intervalData).length === 0) {
+  //   section.style.display = 'none';
+  //   pdfSection.style.display = 'none';
+  //   return;
+  // }
+
+  // section.style.display = 'block';
+  // pdfSection.style.display = 'block';
+
+  // for (const [contractName, variables] of Object.entries(intervalData)) {
+  //   // 主界面渲染
+  //   const contractDiv = document.createElement('div');
+  //   contractDiv.className = 'mb-6';
+
+  //   contractDiv.innerHTML = `
+  //           <h3 class="text-lg font-medium text-gray-800 mb-3">${contractName}</h3>
+  //       `;
+
+  //   const table = document.createElement('table');
+  //   table.className = 'table w-full';
+
+  //   table.innerHTML = `
+  //           <thead>
+  //               <tr>
+  //                   <th class="bg-gray-50">变量名</th>
+  //                   <th class="bg-gray-50">值区间</th>
+  //                   <th class="bg-gray-50">类型</th>
+  //               </tr>
+  //           </thead>
+  //           <tbody></tbody>
+  //       `;
+
+  //   const tbody = table.querySelector('tbody');
+
+  //   for (const [varName, info] of Object.entries(variables)) {
+  //     const row = document.createElement('tr');
+
+  //     row.innerHTML = `
+  //               <td>${varName}</td>
+  //               <td><span class="interval-value">${info.interval || '未知'}</span></td>
+  //               <td>${info.type || '未知'}</td>
+  //           `;
+
+  //     tbody.appendChild(row);
+  //   }
+
+  //   contractDiv.appendChild(table);
+  //   container.appendChild(contractDiv);
+
+  //   // PDF版本渲染
+  //   const pdfContractDiv = document.createElement('div');
+  //   pdfContractDiv.className = 'mb-6';
+  //   pdfContractDiv.innerHTML = `<h3 class="text-lg font-medium mb-3">${contractName}</h3>`;
+
+  //   const pdfTable = document.createElement('table');
+  //   pdfTable.className = 'w-full';
+  //   pdfTable.setAttribute('border', '1');
+  //   pdfTable.setAttribute('cellpadding', '5');
+
+  //   pdfTable.innerHTML = `
+  //     <thead>
+  //       <tr>
+  //           <th>变量名</th>
+  //           <th>值区间</th>
+  //           <th>类型</th>
+  //       </tr>
+  //     </thead>
+  //     <tbody></tbody>
+  //   `;
+
+  //   const pdfTbody = pdfTable.querySelector('tbody');
+
+  //   for (const [varName, info] of Object.entries(variables)) {
+  //     const pdfRow = document.createElement('tr');
+  //     pdfRow.innerHTML = `
+  //       <td>${varName}</td>
+  //       <td>${info.interval || '未知'}</td>
+  //       <td>${info.type || '未知'}</td>
+  //     `;
+  //     pdfTbody.appendChild(pdfRow);
+  //   }
+
+  //   pdfContractDiv.appendChild(pdfTable);
+  //   pdfContainer.appendChild(pdfContractDiv);
+  // }
+
+  if (!document.getElementById('interval-analysis-container')) {
+    console.log('区间分析容器不存在，跳过渲染');
     return;
-  }
-
-  section.style.display = 'block';
-  pdfSection.style.display = 'block';
-
-  for (const [contractName, variables] of Object.entries(intervalData)) {
-    // 主界面渲染
-    const contractDiv = document.createElement('div');
-    contractDiv.className = 'mb-6';
-
-    contractDiv.innerHTML = `
-            <h3 class="text-lg font-medium text-gray-800 mb-3">${contractName}</h3>
-        `;
-
-    const table = document.createElement('table');
-    table.className = 'table w-full';
-
-    table.innerHTML = `
-            <thead>
-                <tr>
-                    <th class="bg-gray-50">变量名</th>
-                    <th class="bg-gray-50">值区间</th>
-                    <th class="bg-gray-50">类型</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        `;
-
-    const tbody = table.querySelector('tbody');
-
-    for (const [varName, info] of Object.entries(variables)) {
-      const row = document.createElement('tr');
-
-      row.innerHTML = `
-                <td>${varName}</td>
-                <td><span class="interval-value">${info.interval || '未知'}</span></td>
-                <td>${info.type || '未知'}</td>
-            `;
-
-      tbody.appendChild(row);
-    }
-
-    contractDiv.appendChild(table);
-    container.appendChild(contractDiv);
-
-    // PDF版本渲染
-    const pdfContractDiv = document.createElement('div');
-    pdfContractDiv.className = 'mb-6';
-    pdfContractDiv.innerHTML = `<h3 class="text-lg font-medium mb-3">${contractName}</h3>`;
-
-    const pdfTable = document.createElement('table');
-    pdfTable.className = 'w-full';
-    pdfTable.setAttribute('border', '1');
-    pdfTable.setAttribute('cellpadding', '5');
-
-    pdfTable.innerHTML = `
-      <thead>
-        <tr>
-            <th>变量名</th>
-            <th>值区间</th>
-            <th>类型</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    `;
-
-    const pdfTbody = pdfTable.querySelector('tbody');
-
-    for (const [varName, info] of Object.entries(variables)) {
-      const pdfRow = document.createElement('tr');
-      pdfRow.innerHTML = `
-        <td>${varName}</td>
-        <td>${info.interval || '未知'}</td>
-        <td>${info.type || '未知'}</td>
-      `;
-      pdfTbody.appendChild(pdfRow);
-    }
-
-    pdfContractDiv.appendChild(pdfTable);
-    pdfContainer.appendChild(pdfContractDiv);
   }
 }
 
-// 过滤漏洞列表 (全局直接调用函数)
+// 设置漏洞筛选器
+function setupVulnerabilityFilter() {
+  // 处理传统select元素 (向后兼容)
+  const vulnerabilityFilter = document.getElementById('vulnerabilityFilter');
+  if (vulnerabilityFilter) {
+    vulnerabilityFilter.addEventListener('change', function () {
+      filterVulnerabilities(this.value);
+    });
+  }
+
+  // 处理新的dropdown组件
+  const filterItems = document.querySelectorAll('.vulnerability-filter-dropdown .filter-item');
+  if (filterItems.length > 0) {
+    filterItems.forEach(item => {
+      item.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        // 获取筛选值
+        const filterValue = this.getAttribute('data-value');
+
+        // 更新当前显示的筛选值
+        const currentFilterEl = document.getElementById('currentFilter');
+        if (currentFilterEl) {
+          currentFilterEl.textContent = this.textContent.trim();
+        }
+
+        // 更新active状态
+        filterItems.forEach(el => el.classList.remove('active'));
+        this.classList.add('active');
+
+        // 应用筛选
+        filterVulnerabilities(filterValue);
+      });
+    });
+
+    // 设置初始按钮样式
+    updateFilterButtonStyle('all');
+  }
+}
+
+// 增强的漏洞筛选功能
 function filterVulnerabilities(filterValueParam) {
   console.log('触发筛选功能');
 
-  // 优先使用传入的参数，如果没有则从下拉框获取
-  const filterValue = filterValueParam || document.getElementById('vulnerabilityFilter').value;
+  // 确定筛选值
+  let filterValue = filterValueParam;
+
+  // 如果没有传入参数，尝试从下拉框获取
+  if (!filterValue) {
+    // 首先尝试从传统的select获取
+    const selectEl = document.getElementById('vulnerabilityFilter');
+    if (selectEl) {
+      filterValue = selectEl.value;
+    } else {
+      // 然后尝试从新的dropdown获取
+      const activeFilterItem = document.querySelector('.vulnerability-filter-dropdown .filter-item.active');
+      if (activeFilterItem) {
+        filterValue = activeFilterItem.getAttribute('data-value');
+      } else {
+        // 默认显示全部
+        filterValue = 'all';
+      }
+    }
+  }
+
   console.log('当前筛选值:', filterValue);
 
+  // 更新筛选按钮样式
+  updateFilterButtonStyle(filterValue);
+
+  // 获取所有漏洞项
   const vulnerabilityItems = document.querySelectorAll('.vulnerability-item');
   console.log('找到漏洞项数量:', vulnerabilityItems.length);
 
@@ -1455,13 +1669,12 @@ function filterVulnerabilities(filterValueParam) {
 
   let visibleCount = 0;
 
+  // 遍历并应用筛选
   vulnerabilityItems.forEach((item, index) => {
     const impact = item.getAttribute('data-impact');
-    console.log(`漏洞项 ${index + 1} impact属性:`, impact);
 
     // 判断是否显示该项
     const shouldShow = filterValue === 'all' || impact === filterValue;
-    console.log(`漏洞项 ${index + 1} 是否显示:`, shouldShow);
 
     // 根据条件设置显示状态
     item.style.display = shouldShow ? 'block' : 'none';
@@ -1488,14 +1701,48 @@ function filterVulnerabilities(filterValueParam) {
   }
 }
 
-// 获取筛选名称
-function getFilterNameById(filterId) {
-  switch (filterId) {
-    case 'high': return '高危';
-    case 'medium': return '中危';
-    case 'low': return '低危';
-    case 'informational': return '提示级别';
-    default: return '';
+// 更新筛选按钮样式
+function updateFilterButtonStyle(filterValue) {
+  const filterBtn = document.querySelector('.filter-btn');
+  if (!filterBtn) return;
+
+  // 移除所有已有的筛选器样式类
+  filterBtn.classList.remove('filter-high', 'filter-medium', 'filter-low', 'filter-informational');
+
+  // 根据筛选值设置不同的样式
+  if (filterValue !== 'all') {
+    filterBtn.classList.add(`filter-${filterValue}`);
+
+    // 更新图标
+    const icon = filterBtn.querySelector('.filter-icon i');
+    if (icon) {
+      // 移除旧的图标类
+      icon.className = '';
+
+      // 根据筛选值设置不同的图标
+      switch (filterValue) {
+        case 'high':
+          icon.className = 'fas fa-skull-crossbones';
+          break;
+        case 'medium':
+          icon.className = 'fas fa-exclamation-triangle';
+          break;
+        case 'low':
+          icon.className = 'fas fa-exclamation-circle';
+          break;
+        case 'informational':
+          icon.className = 'fas fa-info-circle';
+          break;
+        default:
+          icon.className = 'fas fa-filter';
+      }
+    }
+  } else {
+    // 恢复默认图标
+    const icon = filterBtn.querySelector('.filter-icon i');
+    if (icon) {
+      icon.className = 'fas fa-filter';
+    }
   }
 }
 
@@ -1791,9 +2038,10 @@ function updatePdfContent() {
     const fileCountEl = document.getElementById('fileCount');
     const contractCountEl = document.getElementById('contractCount');
     const solcVersionEl = document.getElementById('solcVersion');
+    const auditTimeEl = document.getElementById('auditTime');
 
     const summary = {
-      auditTime: new Date().toLocaleString('zh-CN'),
+      auditTime: auditTimeEl?.textContent || new Date().toLocaleString('zh-CN'),
       fileCount: fileCountEl?.textContent || '0',
       contractCount: contractCountEl?.textContent || '0',
       solcVersion: solcVersionEl?.textContent || '-'
@@ -1802,23 +2050,27 @@ function updatePdfContent() {
     // 安全地获取处理后的漏洞详情
     const detectors = reportData.results?.detectors || reportData.detectors || (Array.isArray(reportData) ? reportData : []);
 
-    // 构建 PDF 内容 HTML (内部逻辑保持不变，已包含空值处理)
+    // 确定当前主题
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const isDarkTheme = currentTheme === 'dark';
+
+    // 构建 PDF 内容 HTML，根据当前主题调整样式
     let pdfHtml = `
       <style>
-        /* PDF styles remain the same */
+        /* PDF styles with theme awareness */
         .report-header {
           text-align: center;
           margin-bottom: 20px;
           padding-bottom: 10px;
-          border-bottom: 2px solid #4a5568;
+          border-bottom: 2px solid ${isDarkTheme ? '#4b5563' : '#4a5568'};
         }
         .report-header h1 {
           font-size: 28px;
-          color: #2d3748;
+          color: ${isDarkTheme ? '#e2e8f0' : '#2d3748'};
           margin-bottom: 8px;
         }
         .report-date {
-          color: #718096;
+          color: ${isDarkTheme ? '#94a3b8' : '#718096'};
           font-size: 14px;
         }
         .report-section {
@@ -1827,8 +2079,8 @@ function updatePdfContent() {
         }
         .report-section h2 {
           font-size: 22px;
-          color: #2d3748;
-          border-bottom: 1px solid #e2e8f0;
+          color: ${isDarkTheme ? '#e2e8f0' : '#2d3748'};
+          border-bottom: 1px solid ${isDarkTheme ? '#4b5563' : '#e2e8f0'};
           padding-bottom: 5px;
           margin-bottom: 15px;
         }
@@ -1838,20 +2090,20 @@ function updatePdfContent() {
           gap: 15px;
         }
         .summary-item {
-          background-color: #f7fafc;
-          border: 1px solid #e2e8f0;
+          background-color: ${isDarkTheme ? '#374151' : '#f7fafc'};
+          border: 1px solid ${isDarkTheme ? '#4b5563' : '#e2e8f0'};
           border-radius: 6px;
           padding: 10px;
         }
         .summary-label {
           font-size: 14px;
-          color: #718096;
+          color: ${isDarkTheme ? '#94a3b8' : '#718096'};
           margin-bottom: 5px;
         }
         .summary-value {
           font-size: 18px;
           font-weight: bold;
-          color: #2d3748;
+          color: ${isDarkTheme ? '#e2e8f0' : '#2d3748'};
         }
         .vulnerability-summary {
           display: flex;
@@ -1865,10 +2117,10 @@ function updatePdfContent() {
           height: 100px;
           border-radius: 50%;
           background: conic-gradient(
-            #f56565 0% ${stats.high * 360 / (totalVulns || 100)}deg,
-            #ed8936 ${stats.high * 360 / (totalVulns || 100)}deg ${(stats.high + stats.medium) * 360 / (totalVulns || 100)}deg,
-            #ecc94b ${(stats.high + stats.medium) * 360 / (totalVulns || 100)}deg ${(stats.high + stats.medium + stats.low) * 360 / (totalVulns || 100)}deg,
-            #4299e1 ${(stats.high + stats.medium + stats.low) * 360 / (totalVulns || 100)}deg 360deg
+            ${isDarkTheme ? '#f87171' : '#f56565'} 0% ${stats.high * 360 / (totalVulns || 100)}deg,
+            ${isDarkTheme ? '#fb923c' : '#ed8936'} ${stats.high * 360 / (totalVulns || 100)}deg ${(stats.high + stats.medium) * 360 / (totalVulns || 100)}deg,
+            ${isDarkTheme ? '#facc15' : '#ecc94b'} ${(stats.high + stats.medium) * 360 / (totalVulns || 100)}deg ${(stats.high + stats.medium + stats.low) * 360 / (totalVulns || 100)}deg,
+            ${isDarkTheme ? '#60a5fa' : '#4299e1'} ${(stats.high + stats.medium + stats.low) * 360 / (totalVulns || 100)}deg 360deg
           );
           display: flex;
           justify-content: center;
@@ -1877,7 +2129,7 @@ function updatePdfContent() {
         .vuln-chart-center {
           width: 60px;
           height: 60px;
-          background: white;
+          background: ${isDarkTheme ? '#1f2937' : 'white'};
           border-radius: 50%;
           display: flex;
           flex-direction: column;
@@ -1887,11 +2139,11 @@ function updatePdfContent() {
         .vuln-total {
           font-size: 18px;
           font-weight: bold;
-          color: #2d3748;
+          color: ${isDarkTheme ? '#e2e8f0' : '#2d3748'};
         }
         .vuln-total-label {
           font-size: 10px;
-          color: #718096;
+          color: ${isDarkTheme ? '#94a3b8' : '#718096'};
         }
         .vulnerability-stats {
           flex: 1;
@@ -1903,7 +2155,7 @@ function updatePdfContent() {
           gap: 8px;
         }
         .vuln-stat-row.empty .vuln-stat-bar-inner {
-          background-color: #edf2f7;
+          background-color: ${isDarkTheme ? '#4b5563' : '#edf2f7'};
         }
         .vuln-stat-icon {
           margin-right: 6px;
@@ -1913,6 +2165,7 @@ function updatePdfContent() {
           font-weight: 500;
           font-size: 12px;
           flex: 1;
+          color: ${isDarkTheme ? '#e2e8f0' : 'inherit'};
         }
         .vuln-stat-count {
           font-weight: bold;
@@ -1920,11 +2173,12 @@ function updatePdfContent() {
           margin: 0 12px;
           min-width: 24px;
           text-align: right;
+          color: ${isDarkTheme ? '#e2e8f0' : 'inherit'};
         }
         .vuln-stat-bar {
           flex: 3;
           height: 10px;
-          background: #e5e7eb;
+          background: ${isDarkTheme ? '#374151' : '#e5e7eb'};
           border-radius: 5px;
           overflow: hidden;
         }
@@ -1932,10 +2186,10 @@ function updatePdfContent() {
           height: 100%;
           border-radius: 5px;
         }
-        .high .vuln-stat-bar-inner { background-color: #ef4444; }
-        .medium .vuln-stat-bar-inner { background-color: #f97316; }
-        .low .vuln-stat-bar-inner { background-color: #eab308; }
-        .info .vuln-stat-bar-inner { background-color: #3b82f6; }
+        .high .vuln-stat-bar-inner { background-color: ${isDarkTheme ? '#f87171' : '#ef4444'}; }
+        .medium .vuln-stat-bar-inner { background-color: ${isDarkTheme ? '#fb923c' : '#f97316'}; }
+        .low .vuln-stat-bar-inner { background-color: ${isDarkTheme ? '#facc15' : '#eab308'}; }
+        .info .vuln-stat-bar-inner { background-color: ${isDarkTheme ? '#60a5fa' : '#3b82f6'}; }
         
         .contracts-table {
           width: 100%;
@@ -1943,153 +2197,23 @@ function updatePdfContent() {
           border-collapse: collapse;
         }
         .contracts-table th, .contracts-table td {
-          border: 1px solid #e2e8f0;
+          border: 1px solid ${isDarkTheme ? '#4b5563' : '#e2e8f0'};
           padding: 8px;
           text-align: left;
+          color: ${isDarkTheme ? '#e2e8f0' : 'inherit'};
         }
         .contracts-table th {
-          background-color: #f8fafc;
+          background-color: ${isDarkTheme ? '#374151' : '#f8fafc'};
           font-weight: 600;
         }
         
-        /* 漏洞详情样式 */
-        .vulnerabilities-section {
-          counter-reset: vuln;
+        /* 整体页面背景和文本颜色 */
+        body {
+          background-color: ${isDarkTheme ? '#111827' : 'white'};
+          color: ${isDarkTheme ? '#e2e8f0' : '#1f2937'};
         }
         
-        .vulnerability-group {
-          margin-bottom: 20px;
-        }
-        
-        .vulnerability-item {
-          margin-bottom: 16px;
-          border: 1px solid #e5e7eb;
-          border-radius: 6px;
-          overflow: hidden;
-          break-inside: avoid;
-          counter-increment: vuln;
-        }
-        
-        .vulnerability-header {
-          display: flex;
-          align-items: center;
-          padding: 10px 12px;
-          background: #f8fafc;
-          border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .vuln-severity-badge {
-          font-size: 10px;
-          font-weight: bold;
-          padding: 3px 8px;
-          border-radius: 12px;
-          margin-right: 10px;
-          color: white;
-        }
-        
-        .vuln-severity-badge.high { background-color: #ef4444; }
-        .vuln-severity-badge.medium { background-color: #f97316; }
-        .vuln-severity-badge.low { background-color: #eab308; }
-        .vuln-severity-badge.informational { background-color: #3b82f6; }
-        
-        .vuln-title {
-          font-weight: 600;
-          font-size: 12px;
-          flex: 1;
-        }
-        
-        .vuln-confidence {
-          font-size: 10px;
-          padding: 2px 6px;
-          background: #e5e7eb;
-          border-radius: 4px;
-          color: #4b5563;
-        }
-        
-        .vulnerability-body {
-          padding: 12px;
-        }
-        
-        .vuln-location {
-          font-size: 11px;
-          color: #4b5563;
-          background: #f9fafb;
-          padding: 4px 8px;
-          border-radius: 4px;
-          margin-bottom: 12px;
-          font-family: monospace;
-        }
-        
-        .vuln-description {
-          font-size: 12px;
-          margin-bottom: 12px;
-          white-space: pre-line;
-        }
-        
-        .vuln-code {
-          margin: 12px 0;
-        }
-        
-        .vuln-code-header {
-          font-weight: 600;
-          font-size: 11px;
-          margin-bottom: 4px;
-          color: #4b5563;
-        }
-        
-        .code-block {
-          background: #f9fafb;
-          border: 1px solid #e5e7eb;
-          border-radius: 4px;
-          padding: 8px;
-          font-family: monospace;
-          font-size: 11px;
-          overflow-x: auto;
-        }
-        
-        .vuln-recommendation {
-          margin-top: 12px;
-          padding-top: 12px;
-          border-top: 1px dashed #e5e7eb;
-        }
-        
-        .vuln-recommendation-header {
-          font-weight: 600;
-          font-size: 11px;
-          margin-bottom: 4px;
-          color: #4b5563;
-        }
-        
-        .vuln-recommendation-content {
-          font-size: 11px;
-          white-space: pre-line;
-        }
-        
-        .no-vulnerabilities {
-          text-align: center;
-          padding: 32px;
-          color: #6b7280;
-          font-style: italic;
-          background: #f9fafb;
-          border-radius: 6px;
-          border: 1px dashed #e5e7eb;
-        }
-        
-        .report-footer {
-          margin-top: 32px;
-          padding-top: 16px;
-          border-top: 1px solid #e5e7eb;
-          font-size: 11px;
-          color: #6b7280;
-          text-align: center;
-        }
-        
-        .timestamp {
-          font-style: italic;
-          margin-top: 8px;
-        }
-        
-        /* 省资源的打印设置 */
+        /* 打印样式（保持不变，因为打印始终使用浅色主题） */
         @page {
           size: A4;
           margin: 1.5cm;
@@ -2513,4 +2637,32 @@ function getSeverityDescription(severity) {
   if (severity === 'medium') return '中危';
   if (severity === 'low') return '低危';
   return '提示'; // informational
+}
+
+// 清空当前报告并恢复初始状态
+function clearCurrentReport() {
+  // 清空全局报告数据
+  reportData = null;
+
+  // 清空显示
+  clearReportDisplay();
+
+  // 显示拖放区域
+  const dropArea = document.getElementById('dropArea');
+  if (dropArea) {
+    dropArea.classList.remove('hidden');
+  }
+
+  console.log('已清空当前报告');
+}
+
+// 获取筛选名称
+function getFilterNameById(filterId) {
+  switch (filterId) {
+    case 'high': return '高危';
+    case 'medium': return '中危';
+    case 'low': return '低危';
+    case 'informational': return '提示级别';
+    default: return '';
+  }
 }

@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-  themes: light --default;
+  themes: light --default, dark;
   root: ":root";
   logs: false;
 }
@@ -35,6 +35,10 @@ body {
   background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
 }
 
+[data-theme="dark"] .card-gradient {
+  background: linear-gradient(135deg, var(--color-base-200) 0%, var(--color-base-300) 100%);
+}
+
 /* 加载指示器样式 */
 .loading-container {
   position: fixed;
@@ -51,6 +55,12 @@ body {
   backdrop-filter: blur(3px);
 }
 
+/* 深色主题下的加载指示器 */
+[data-theme="dark"] .loading-container {
+  background-color: rgba(17, 24, 39, 0.9);
+  color: var(--color-base-content);
+}
+
 .loading-spinner {
   width: 50px;
   height: 50px;
@@ -61,10 +71,14 @@ body {
   margin-bottom: 10px;
 }
 
+/* 深色主题下的加载动画 */
+[data-theme="dark"] .loading-spinner {
+  border-color: rgba(255, 255, 255, 0.1);
+  border-top-color: #60a5fa;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
-
-/* 可能需要的其他样式可以添加在这里 */ 

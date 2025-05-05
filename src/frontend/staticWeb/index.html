@@ -1,23 +1,30 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>智能合约审计报告</title>
-  <!-- Vite处理CSS -->
-  <link rel="stylesheet" href="./src/style.css">
+  <!-- 样式文件 -->
+  <link rel="stylesheet" href="./css/style.css">
   <link rel="stylesheet" href="./css/code-viewer.css">
   <!-- 本地依赖 -->
   <link rel="stylesheet" href="./node_modules/prismjs/themes/prism-tomorrow.min.css">
   <link rel="stylesheet" href="./node_modules/@fortawesome/fontawesome-free/css/all.min.css">
   <!-- 可以继续使用Google Fonts的CDN -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Vite入口点 -->
-  <script type="module" src="/src/main.js"></script>
+
+  <!-- 内联初始化代码，不需要通过Vite -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.CodeViewer) {
+        window.CodeViewer.init();
+      }
+    });
+  </script>
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-base-100 text-base-content">
   <!-- 加载指示器 -->
   <div id="loadingIndicator" class="loading-container">
     <div class="loading-spinner"></div>
@@ -29,13 +36,17 @@
     <header class="bg-primary text-primary-content shadow-lg sticky top-0 z-10">
       <div class="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
         <div class="flex items-center space-x-2">
-          <i class="fas fa-shield-alt text-2xl"></i>
+          <!-- 主题切换按钮 -->
+          <button id="themeToggleBtn" class="relative cursor-pointer" title="切换主题">
+            <i class="fas fa-shield-alt text-2xl"></i>
+            <i class="fas fa-sun text-xs absolute top-0 right-0"></i>
+          </button>
           <h1 class="text-xl md:text-2xl font-bold hidden md:inline">智能合约审计报告</h1>
         </div>
         <div class="flex space-x-2">
           <!-- 历史记录菜单 - 使用DaisyUI 5兼容的dropdown -->
           <details class="dropdown dropdown-end">
-            <summary class="btn btn-sm btn-outline-secondary">
+            <summary class="btn btn-sm btn-outline-secondary btn-outline">
               <i class="fas fa-history mr-1"></i>
               <span class="hidden md:inline">历史记录</span>
               <span class="inline md:hidden">历史</span>
@@ -54,7 +65,7 @@
           </details>
 
           <!-- 上传按钮 -->
-          <button id="uploadReportBtn" class="btn btn-sm btn-outline-accent">
+          <button id="uploadReportBtn" class="btn btn-sm btn-outline-accent btn-outline">
             <i class="fas fa-upload mr-1"></i>
             <span class="hidden md:inline">上传报告</span>
             <span class="inline md:hidden">上传</span>
@@ -70,6 +81,10 @@
             <ul class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
               <li><a id="downloadJsonBtn"><i class="fas fa-file-code mr-2"></i>JSON格式</a></li>
               <li><a id="downloadPdfBtn"><i class="fas fa-file-pdf mr-2"></i>PDF格式</a></li>
+              <li><a id="downloadMarkdownBtn"><i class="fas fa-file-alt mr-2"></i>Markdown格式</a></li>
+              <li class="divider"></li>
+              <li><a id="clearCurrentReportBtn" class="text-warning"><i class="fas fa-trash-alt mr-2"></i>清空当前报告</a>
+              </li>
             </ul>
           </details>
         </div>
@@ -83,6 +98,9 @@
         <i class="fas fa-cloud-upload-alt text-5xl mb-3"></i>
         <p class="text-lg">拖放 JSON 审计报告文件到此处</p>
         <p class="text-sm mt-2 text-blue-400">或点击上方"上传报告"按钮</p>
+        <button id="loadExampleBtn" class="btn btn-sm btn-outline mt-4">
+          <i class="fas fa-file-alt mr-1"></i>查看示例报告
+        </button>
       </div>
     </div>
 
@@ -204,14 +222,21 @@
               <h2 class="text-xl font-semibold text-gray-800">漏洞详情</h2>
             </div>
             <div class="flex space-x-2">
-              <select id="vulnerabilityFilter" class="select select-bordered select-sm"
-                onchange="filterVulnerabilities()">
-                <option value="all">全部漏洞</option>
-                <option value="high">高危</option>
-                <option value="medium">中危</option>
-                <option value="low">低危</option>
-                <option value="informational">提示</option>
-              </select>
+              <div class="vulnerability-filter-dropdown dropdown dropdown-end">
+                <div tabindex="0" role="button" class="filter-btn btn btn-sm btn-outline">
+                  <span class="filter-icon"><i class="fas fa-filter"></i></span>
+                  <span id="currentFilter">全部漏洞</span>
+                </div>
+                <ul tabindex="0" class="dropdown-content z-[1] menu shadow bg-base-100 rounded-box">
+                  <li><a class="filter-item all active" data-value="all">全部漏洞</a></li>
+                  <li><a class="filter-item high" data-value="high"><i class="fas fa-skull-crossbones"></i>高危</a></li>
+                  <li><a class="filter-item medium" data-value="medium"><i
+                        class="fas fa-exclamation-triangle"></i>中危</a></li>
+                  <li><a class="filter-item low" data-value="low"><i class="fas fa-exclamation-circle"></i>低危</a></li>
+                  <li><a class="filter-item info" data-value="informational"><i class="fas fa-info-circle"></i>提示</a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
           <div id="vulnerabilitiesContainer" class="space-y-4">
@@ -230,6 +255,16 @@
     <footer class="bg-base-100 py-4 border-t border-gray-200 mt-8">
       <div class="container mx-auto text-center text-sm text-gray-500">
         <p>© 2025 静态分析插件 | 智能合约安全审计报告</p>
+      </div>
+
+      <!-- 区间分析容器 - 先隐藏/后续看情况调整 -->
+      <div id="intervalAnalysisSection" class="hidden">
+        <div id="intervalAnalysisContainer"></div>
+      </div>
+
+      <!-- PDF区间分析容器 - 先隐藏/后续看情况调整 -->
+      <div id="pdf-intervalAnalysisSection" class="hidden">
+        <div id="pdf-intervalAnalysisContainer"></div>
       </div>
 
       <!-- 添加隐藏的PDF报告内容容器 -->

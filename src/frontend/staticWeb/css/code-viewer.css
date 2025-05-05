@@ -1,27 +1,200 @@
-/**
- * 代码查看模块的专用样式
- * 这些样式与主应用样式分离，便于调整和删除
- */
+
+/* 代码查看器样式 */
+
+/* 代码容器 */
+.code-context {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+[data-theme="dark"] .code-context {
+  border-color: #4b5563;
+}
 
 /* 代码块容器 */
 .code-block {
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  background: #1e293b;
-  color: #e2e8f0;
-  border-radius: 0.375rem;
-  overflow-x: auto;
+  margin: 0;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  /* background-color: #f8fafc; */
 }
 
-/* 代码片段头部 */
-.code-header {
-  background-color: #2c3e50;
+[data-theme="dark"] .code-block {
+  background-color: #1e293b;
   color: #e2e8f0;
+}
+
+/* 代码头部 */
+.code-header {
   padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  border-bottom: 1px solid #4b5563;
+  /* background-color: #e2e8f0; */
   font-weight: 500;
+  border-bottom: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+[data-theme="dark"] .code-header {
+  background-color: #334155;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+/* 省略标记 */
+.code-omitted {
+  padding: 0.25rem 1rem;
+  color: #64748b;
+  font-style: italic;
+  /* background-color: #f1f5f9; */
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+[data-theme="dark"] .code-omitted {
+  background-color: #334155;
+  color: #94a3b8;
+  border-color: #475569;
+}
+
+/* 代码行 */
+.code-line {
+  display: flex;
+  align-items: stretch;
+  min-height: 1.5rem;
+  padding: 0.125rem 0;
+  white-space: pre;
+}
+
+/* 行号 */
+.line-number {
+  user-select: none;
+  text-align: right;
+  padding-right: 1rem;
+  min-width: 3rem;
+  color: #94a3b8;
+  /* background-color: #f1f5f9; */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: sticky;
+  left: 0;
+}
+
+[data-theme="dark"] .line-number {
+  background-color: #1e293b;
+  color: #64748b;
+}
+
+/* 代码内容 */
+.line-content {
+  padding-left: 0.5rem;
+  overflow-x: auto;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  color: #709ddc;
+}
+
+/* 高亮代码行 */
+.highlighted-line {
+  background-color: rgba(254, 240, 138, 0.3);
+}
+
+[data-theme="dark"] .highlighted-line {
+  background-color: rgba(254, 240, 138, 0.15);
+}
+
+.highlighted-line .line-number {
+  background-color: rgba(254, 240, 138, 0.3);
+  color: #713f12;
+}
+
+[data-theme="dark"] .highlighted-line .line-number {
+  background-color: rgba(254, 240, 138, 0.15);
+  color: #fef08a;
+}
+
+/* 文件查看器 */
+.file-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.file-viewer-content {
+  width: 90%;
+  height: 90%;
+  background-color: #fff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .file-viewer-content {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+.file-viewer-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+[data-theme="dark"] .file-viewer-header {
+  border-color: #475569;
+}
+
+.file-viewer-title {
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.file-viewer-close {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #64748b;
+}
+
+.file-viewer-close:hover {
+  color: #ef4444;
+}
+
+.file-viewer-body {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+
+.file-not-found {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #64748b;
+}
+
+.file-not-found i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #94a3b8;
 }
 
 /* 代码片段尾部 */
@@ -35,15 +208,10 @@
   font-style: italic;
 }
 
-/* 省略的代码部分 */
-.code-omitted {
-  color: #94a3b8;
-  padding: 0.3rem 1rem;
-  font-size: 0.75rem;
-  background-color: rgba(44, 62, 80, 0.6);
-  text-align: center;
-  font-style: italic;
-  border-bottom: 1px dashed #4b5563;
+/* 主题适配-代码片段尾部 */
+[data-theme="dark"] .code-footer {
+  background-color: #1e293b;
+  border-top-color: #334155;
 }
 
 .code-omitted:last-child {
@@ -51,30 +219,13 @@
   border-bottom: none;
 }
 
-/* 代码行 */
-.code-line {
-  white-space: pre;
-  padding: 0.125rem 0;
+[data-theme="dark"] .code-omitted:last-child {
+  border-top-color: #334155;
 }
 
 /* 代码行悬停效果 */
 .code-line:hover {
   background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* 高亮行 */
-.highlighted-line {
-  background-color: rgba(234, 179, 8, 0.15) !important;
-  border-left: 3px solid #eab308;
-}
-
-/* 行号样式 */
-.line-number {
-  user-select: none;
-  color: #64748b;
-  min-width: 3rem;
-  text-align: right;
-  padding-right: 1rem;
 }
 
 /* 加载指示器 */
@@ -109,21 +260,6 @@
   padding: 1rem;
   border-left: 3px solid #ef4444;
   background-color: rgba(239, 68, 68, 0.1);
-}
-
-/* 代码上下文容器 */
-.code-context {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
-  max-height: 20rem;
-  min-height: 100px;
-  overflow: auto;
-  border: 1px solid #334155;
-  border-radius: 0.375rem;
-  transition: all 0.3s ease;
-  display: block;
-  width: 100%;
-  background-color: #1e293b;
 }
 
 /* 确保代码上下文内容的可见性 */
@@ -184,6 +320,13 @@
   animation: slideUp 0.3s ease-out;
 }
 
+/* 主题适配-模态框 */
+[data-theme="dark"] .modal-box {
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(20px);
@@ -200,6 +343,11 @@
 .file-info {
   color: #64748b;
   font-size: 0.875rem;
+}
+
+/* 主题适配-文件信息 */
+[data-theme="dark"] .file-info {
+  color: #94a3b8;
 }
 
 /* 按钮悬停效果 */
