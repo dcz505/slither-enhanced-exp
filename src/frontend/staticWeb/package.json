@@ -1,0 +1,26 @@
+{
+  "name": "staticweb",
+  "version": "1.0.0",
+  "description": "这个静态网页报告查看器是 Slither 增强版的一部分，用于可视化展示智能合约审计报告。它提供了一个用户友好的界面，使用户能够更轻松地理解和分析审计发现。",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "dcz",
+  "license": "ISC",
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@tailwindcss/postcss": "^4.1.5",
+    "autoprefixer": "^10.4.21",
+    "daisyui": "^5.0.32",
+    "html2pdf.js": "^0.10.3",
+    "postcss": "^8.5.3",
+    "prism-themes": "^1.9.0",
+    "prismjs": "^1.30.0",
+    "tailwindcss": "^4.1.5",
+    "vite": "^5.1.4"
+  }
+}

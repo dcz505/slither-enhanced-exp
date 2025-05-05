@@ -351,8 +351,8 @@ async function loadCodeContext(filePath, lineNumbers, contextLines = 3) {
       const lineClass = isVulnLine ? 'highlighted-line' : '';
 
       contextCode += `
-        <div class="code-line ${lineClass} flex">
-          <span class="line-number select-none text-gray-500 w-12 inline-block text-right pr-4">${i}</span>
+        <div class="code-line ${lineClass}">
+          <span class="line-number">${i}</span>
           <span class="line-content">${escapeHtml(lineContent)}</span>
         </div>
       `;
@@ -405,8 +405,8 @@ async function loadFullSourceFile(filePath, highlightLines = []) {
       const lineClass = isHighlighted ? 'highlighted-line' : '';
 
       sourceHtml += `
-        <div class="code-line ${lineClass} line-${lineNumber} flex">
-          <span class="line-number select-none text-gray-500 w-12 inline-block text-right pr-4">${lineNumber}</span>
+        <div class="code-line ${lineClass} line-${lineNumber}">
+          <span class="line-number">${lineNumber}</span>
           <span class="line-content">${escapeHtml(lineContent)}</span>
         </div>
       `;
